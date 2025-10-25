@@ -7,19 +7,23 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
+* {
+  box-sizing: border-box; /* Ensures padding/border are included in width */
+}
+
 body {
   margin:0; padding:0;
   font-family: 'Share Tech Mono', monospace;
   background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
   color: #0ff;
-  overflow-x: hidden;
+  overflow-x: hidden; /* prevent horizontal scroll */
 }
 
 #container {
   width: 95%;
   max-width: 480px;
   margin: 2rem auto;
-  padding: 1.5rem;
+  padding: 1rem;
   background: rgba(0,0,0,0.85);
   border: 2px dashed #0ff;
   border-radius: 10px;
@@ -39,7 +43,7 @@ h1 {
 .text {
   font-size: 1rem;
   line-height: 1.4;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   text-align: center;
   word-break: break-word;
 }
@@ -48,11 +52,12 @@ h1 {
   display: flex;
   flex-direction: column;
   width: 100%;
+  gap: 0.5rem;
 }
 
 button {
-  margin: 0.5rem 0;
-  padding: 0.9rem;
+  width: 100%;
+  padding: 0.8rem;
   background: #0ff;
   color: #000;
   font-family: 'Share Tech Mono', monospace;
@@ -61,7 +66,6 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
-  width: 100%;
 }
 
 button:hover {
@@ -91,6 +95,13 @@ button:hover {
   50% { opacity:0.5; }
   100% { opacity:1; }
 }
+
+/* Optional: smaller text and buttons on very small screens */
+@media (max-width: 350px) {
+  h1 { font-size: 1.4rem; }
+  .text { font-size: 0.9rem; }
+  button { font-size: 0.9rem; padding: 0.7rem; }
+}
 </style>
 </head>
 <body>
@@ -110,7 +121,6 @@ button:hover {
 <script>
 let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// Randomized glitchy audio
 function playBeep(freq=440, duration=100) {
   let osc = audioCtx.createOscillator();
   osc.type = ['square','sawtooth','triangle'][Math.floor(Math.random()*3)];
@@ -120,7 +130,6 @@ function playBeep(freq=440, duration=100) {
   osc.stop(audioCtx.currentTime + duration/1000);
 }
 
-// Reduce frequency for comfort
 setInterval(() => {
   if(Math.random() < 0.1) playBeep(Math.random()*1500+200, Math.random()*200+50);
 }, 600);
@@ -140,7 +149,6 @@ const endings = [
   'Reality fractures. Your memories leak into the neon matrix.'
 ];
 
-// Generate random path options
 function randomPaths(base) {
   const options = [
     {text:"Run forward", action:()=>choosePath(base+'1')},
@@ -153,10 +161,8 @@ function randomPaths(base) {
   return options.sort(()=>0.5-Math.random()).slice(0, Math.floor(Math.random()*2)+2);
 }
 
-// Extended deep-lore paths
 function choosePath(path) {
   switch(path) {
-    // Deep Lore Path 1
     case 'left':
       story.innerHTML = `The door opens. A corridor of flickering panels whispers your name.  
       <span class="glitch">"Subject 27… return."</span> Do you:`;
@@ -192,7 +198,6 @@ function choosePath(path) {
       updateButtons([{text:"RESET", action:resetStory}]);
       break;
 
-    // Deep Lore Path 2
     case 'right':
       story.innerHTML = `The console hums. A voice whispers promises of forbidden pleasures.  
       <span class="glitch">Your skin tingles...</span> Do you:`;
@@ -226,7 +231,6 @@ function choosePath(path) {
       break;
 
     default:
-      // Short randomized paths
       story.innerHTML = `You proceed along your choice. The world warps and distorts...  
       <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
       updateButtons([{text:"RESET", action:resetStory}]);
@@ -234,7 +238,6 @@ function choosePath(path) {
   }
 }
 
-// Update buttons
 function updateButtons(options) {
   const btns = [leftBtn, rightBtn];
   btns.forEach((btn, i) => {
@@ -248,7 +251,6 @@ function updateButtons(options) {
   });
 }
 
-// Reset story
 function resetStory() {
   story.innerHTML = `You awaken in a dark, neon-lit chamber. The walls hum with unseen machinery. A screen flickers: <span class="glitch">"WELCOME SUBJECT"</span>.  
   Do you:`;
