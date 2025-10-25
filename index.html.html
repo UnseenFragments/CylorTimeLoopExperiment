@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyLor Time Loop Experiment</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+body {
+  margin:0; padding:0;
+  font-family: 'Share Tech Mono', monospace;
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  color: #0ff;
+  overflow: hidden;
+}
+
+#container {
+  width: 90%;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: rgba(0,0,0,0.7);
+  border: 2px dashed #0ff;
+  border-radius: 12px;
+  box-shadow: 0 0 40px #0ff;
+  position: relative;
+}
+
+h1 {
+  font-size: 2rem;
+  text-align: center;
+  text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  margin-bottom: 1rem;
+}
+
+.text {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+button {
+  display: block;
+  margin: 1rem 0;
+  padding: 0.7rem 1.5rem;
+  background: #0ff;
+  color: #000;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #00b8b8;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.glitch {
+  animation: glitch 0.3s infinite;
+}
+
+@keyframes glitch {
+  0% { text-shadow: 2px 0 #f0f, -2px 2px #0ff; }
+  25% { text-shadow: -2px -2px #f00, 2px 2px #0ff; }
+  50% { text-shadow: 2px 2px #ff0, -2px -2px #0ff; }
+  75% { text-shadow: -2px 2px #0f0, 2px -2px #f0f; }
+  100% { text-shadow: 2px 0 #f0f, -2px 2px #0ff; }
+}
+
+.flicker {
+  animation: flicker 0.15s infinite alternate;
+}
+@keyframes flicker {
+  0% { opacity:1; }
+  50% { opacity:0.5; }
+  100% { opacity:1; }
+}
+</style>
+</head>
+<body>
+<div id="container">
+  <h1>CyLor Time Loop Experiment</h1>
+  <div class="text" id="story">
+    You awaken in a dark, neon-lit chamber. The walls hum with unseen machinery. A screen flickers: <span class="glitch">"WELCOME SUBJECT"</span>.  
+    Do you:
+  </div>
+  <div id="buttons">
+    <button id="leftButton">Investigate the flickering door to your left</button>
+    <button id="rightButton">Step toward the pulsing console on your right</button>
+    <button id="resetButton">RESET</button>
+  </div>
+</div>
+
+<script>
+let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// Randomized glitchy audio (less frequent)
+function playBeep(freq=440, duration=100) {
+  let osc = audioCtx.createOscillator();
+  osc.type = ['square','sawtooth','triangle'][Math.floor(Math.random()*3)];
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  osc.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration/1000);
+}
+
+// Fewer random beeps
+setInterval(() => {
+  if(Math.random() < 0.15) playBeep(Math.random()*1500+200, Math.random()*300+50);
+}, 400);
+
+const story = document.getElementById('story');
+const leftBtn = document.getElementById('leftButton');
+const rightBtn = document.getElementById('rightButton');
+const resetBtn = document.getElementById('resetButton');
+
+const endings = [
+  'You are trapped in the loop forever.',
+  'Assimilation complete. Bleed me if you will...',
+  'The vent consumes you.',
+  'Mind permanently linked to CyLor.',
+  'Lost in the digital void.',
+  'You surrender to the cybernetic embrace.',
+  'Reality fractures. Your memories leak into the neon matrix.'
+];
+
+// Randomized path options for replayability
+function randomPaths(base) {
+  const options = [
+    {text:"Run forward", action:()=>choosePath(base+'1')},
+    {text:"Turn around", action:()=>choosePath(base+'2')},
+    {text:"Peek at a glowing vent", action:()=>choosePath(base+'3')},
+    {text:"Investigate a dark alcove", action:()=>choosePath(base+'4')},
+    {text:"Listen to the whispers", action:()=>choosePath(base+'5')},
+    {text:"Touch a flickering panel", action:()=>choosePath(base+'6')}
+  ];
+  // shuffle and return 2-3 random choices
+  return options.sort(()=>0.5-Math.random()).slice(0, Math.floor(Math.random()*2)+2);
+}
+
+function choosePath(path) {
+  switch(path) {
+    case 'left':
+      story.innerHTML = `The door creaks open, revealing a dim corridor dripping with neon sludge. Shadows twist along the walls...  
+      <span class="glitch">Something breathes behind you.</span> Do you:`;
+      updateButtons(randomPaths('left'));
+      break;
+
+    case 'right':
+      story.innerHTML = `The console sparks violently. Data streams across your retina. A seductive whisper murmurs, "Stay... forever..."  
+      <span class="glitch">Will you surrender?</span> Do you:`;
+      updateButtons(randomPaths('right'));
+      break;
+
+    default:
+      // Random endings for numbered paths
+      story.innerHTML = `You proceed along your choice. The world warps and distorts...  
+      <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
+      updateButtons([{text:"RESET", action:resetStory}]);
+      break;
+  }
+}
+
+function updateButtons(options) {
+  const btns = [leftBtn, rightBtn];
+  btns.forEach((btn, i) => {
+    if(i < options.length) {
+      btn.style.display = 'block';
+      btn.innerText = options[i].text;
+      btn.onclick = options[i].action;
+    } else {
+      btn.style.display = 'none';
+    }
+  });
+}
+
+function resetStory() {
+  story.innerHTML = `You awaken in a dark, neon-lit chamber. The walls hum with unseen machinery. A screen flickers: <span class="glitch">"WELCOME SUBJECT"</span>.  
+  Do you:`;
+  leftBtn.style.display = 'block';
+  leftBtn.innerText = 'Investigate the flickering door to your left';
+  leftBtn.onclick = () => choosePath('left');
+  rightBtn.style.display = 'block';
+  rightBtn.innerText = 'Step toward the pulsing console on your right';
+  rightBtn.onclick = () => choosePath('right');
+}
+
+// Initialize
+resetStory();
+resetBtn.onclick = resetStory;
+</script>
+</body>
+</html>
