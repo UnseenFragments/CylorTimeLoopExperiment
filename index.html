@@ -17,7 +17,7 @@ body {
 
 #container {
   width: 95%;
-  max-width: 500px;
+  max-width: 480px;
   margin: 2rem auto;
   padding: 1.5rem;
   background: rgba(0,0,0,0.85);
@@ -41,6 +41,7 @@ h1 {
   line-height: 1.4;
   margin-bottom: 1.5rem;
   text-align: center;
+  word-break: break-word;
 }
 
 #buttons {
@@ -51,7 +52,7 @@ h1 {
 
 button {
   margin: 0.5rem 0;
-  padding: 0.7rem;
+  padding: 0.9rem;
   background: #0ff;
   color: #000;
   font-family: 'Share Tech Mono', monospace;
@@ -119,9 +120,10 @@ function playBeep(freq=440, duration=100) {
   osc.stop(audioCtx.currentTime + duration/1000);
 }
 
+// Reduce frequency for comfort
 setInterval(() => {
-  if(Math.random() < 0.12) playBeep(Math.random()*1500+200, Math.random()*250+50);
-}, 500);
+  if(Math.random() < 0.1) playBeep(Math.random()*1500+200, Math.random()*200+50);
+}, 600);
 
 const story = document.getElementById('story');
 const leftBtn = document.getElementById('leftButton');
@@ -138,7 +140,7 @@ const endings = [
   'Reality fractures. Your memories leak into the neon matrix.'
 ];
 
-// Random path generator for replayability
+// Generate random path options
 function randomPaths(base) {
   const options = [
     {text:"Run forward", action:()=>choosePath(base+'1')},
@@ -151,86 +153,74 @@ function randomPaths(base) {
   return options.sort(()=>0.5-Math.random()).slice(0, Math.floor(Math.random()*2)+2);
 }
 
-// Core branching function
+// Extended deep-lore paths
 function choosePath(path) {
   switch(path) {
+    // Deep Lore Path 1
     case 'left':
-      // Deep lore path 1
-      story.innerHTML = `The door creaks open. You enter a corridor lined with old data panels flickering messages in a language you almost recognize.  
-      <span class="glitch">Voices echo: "Subject 27… return."</span> Do you:`;
+      story.innerHTML = `The door opens. A corridor of flickering panels whispers your name.  
+      <span class="glitch">"Subject 27… return."</span> Do you:`;
       updateButtons([
-        {text:"Follow the messages deeper", action:()=>choosePath('lore1_step2')},
-        {text:"Ignore and proceed forward", action:()=>choosePath('lore1_step2b')}
+        {text:"Follow the messages deeper", action:()=>choosePath('lore1_2')},
+        {text:"Ignore and proceed forward", action:()=>choosePath('lore1_2b')}
       ]);
       break;
+    case 'lore1_2':
+      story.innerHTML = `Panels display your memories, corrupted and interlaced with CyLor data. Shadows move.  
+      Do you:`;
+      updateButtons([
+        {text:"Merge your mind with CyLor", action:()=>choosePath('lore1_3')},
+        {text:"Resist and keep moving", action:()=>choosePath('lore1_3b')}
+      ]);
+      break;
+    case 'lore1_2b':
+      story.innerHTML = `You step forward. A pool of liquid neon beckons. Its surface reflects a twisted version of yourself.  
+      Do you:`;
+      updateButtons([
+        {text:"Touch the neon", action:()=>choosePath('lore1_3')},
+        {text:"Walk past quickly", action:()=>choosePath('lore1_3b')}
+      ]);
+      break;
+    case 'lore1_3':
+      story.innerHTML = `Your consciousness fractures as the station's AI entwines with your neural pathways.  
+      <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
+      updateButtons([{text:"RESET", action:resetStory}]);
+      break;
+    case 'lore1_3b':
+      story.innerHTML = `You narrowly avoid assimilation. Neon veins follow your every step. A door slams shut behind you.  
+      <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
+      updateButtons([{text:"RESET", action:resetStory}]);
+      break;
 
+    // Deep Lore Path 2
     case 'right':
-      // Deep lore path 2
-      story.innerHTML = `The console hums. A seductive, digital voice whispers promises of connection and forbidden pleasures.  
+      story.innerHTML = `The console hums. A voice whispers promises of forbidden pleasures.  
       <span class="glitch">Your skin tingles...</span> Do you:`;
       updateButtons([
-        {text:"Enter the codes it demands", action:()=>choosePath('lore2_step2')},
-        {text:"Flee into the shadows", action:()=>choosePath('lore2_step2b')}
+        {text:"Enter the codes", action:()=>choosePath('lore2_2')},
+        {text:"Flee", action:()=>choosePath('lore2_2b')}
       ]);
       break;
-
-    // Deep lore 1 sequence
-    case 'lore1_step2':
-      story.innerHTML = `The corridor bends impossibly. Neon veins crawl along the walls. You see figures stitched from wires and skin, whispering secrets of the station.  
+    case 'lore2_2':
+      story.innerHTML = `The console splits open revealing a living data entity coiling around you.  
       Do you:`;
       updateButtons([
-        {text:"Approach the figures", action:()=>choosePath('lore1_step3')},
-        {text:"Hide and watch silently", action:()=>choosePath('lore1_step3b')}
+        {text:"Embrace fully", action:()=>choosePath('lore2_3')},
+        {text:"Attempt to disconnect", action:()=>choosePath('lore2_3b')}
       ]);
       break;
-
-    case 'lore1_step2b':
-      story.innerHTML = `Ignoring the messages, you find a small alcove filled with glowing vials. The air smells metallic.  
-      Do you:`;
-      updateButtons([
-        {text:"Drink a vial", action:()=>choosePath('lore1_end')},
-        {text:"Pocket a vial for later", action:()=>choosePath('lore1_step3')}
-      ]);
-      break;
-
-    case 'lore1_step3':
-    case 'lore1_step3b':
-      story.innerHTML = `The neon veins pulse faster. Figures turn toward you, faces half-flesh, half-screen.  
-      <span class="glitch">Your mind fractures…</span>  
+    case 'lore2_2b':
+      story.innerHTML = `You flee, but corridors twist unnaturally. Neon tendrils wrap around you.  
       <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
       updateButtons([{text:"RESET", action:resetStory}]);
       break;
-
-    case 'lore1_end':
-      story.innerHTML = `The vial burns through your veins. Memories not your own flood your mind. CyLor's secrets are yours… but at a cost.  
+    case 'lore2_3':
+      story.innerHTML = `Pleasure and terror mix as your body and data entity intertwine. Your mind fractures beautifully.  
       <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
       updateButtons([{text:"RESET", action:resetStory}]);
       break;
-
-    // Deep lore 2 sequence
-    case 'lore2_step2':
-      story.innerHTML = `Codes accepted. The console splits open revealing a glowing, living data entity. It coils around your body, whispering promises.  
-      Do you:`;
-      updateButtons([
-        {text:"Embrace it fully", action:()=>choosePath('lore2_end')},
-        {text:"Try to disconnect", action:()=>choosePath('lore2_step3')}
-      ]);
-      break;
-
-    case 'lore2_step2b':
-      story.innerHTML = `Fleeing the console, the corridor twists. Your shadow stretches unnaturally, merging with neon tendrils on the walls.  
-      <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
-      updateButtons([{text:"RESET", action:resetStory}]);
-      break;
-
-    case 'lore2_step3':
-      story.innerHTML = `You struggle to break free. The entity laughs in binary and flesh. Pleasure and horror intermingle.  
-      <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
-      updateButtons([{text:"RESET", action:resetStory}]);
-      break;
-
-    case 'lore2_end':
-      story.innerHTML = `You merge with the data entity. Flesh and code intertwine. Every fantasy and terror you’ve ever imagined now lives inside you.  
+    case 'lore2_3b':
+      story.innerHTML = `You try to disconnect. Pain and bliss shock through your nerves. The entity laughs in binary.  
       <span class="glitch">END: ${endings[Math.floor(Math.random()*endings.length)]}</span>`;
       updateButtons([{text:"RESET", action:resetStory}]);
       break;
@@ -244,7 +234,7 @@ function choosePath(path) {
   }
 }
 
-// Update buttons dynamically
+// Update buttons
 function updateButtons(options) {
   const btns = [leftBtn, rightBtn];
   btns.forEach((btn, i) => {
